@@ -3,38 +3,48 @@ name: ML CI/CD Pipeline
 on:
   push:
     branches:
-    - main
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # 1️⃣ Get your code
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.10
+      # 2️⃣ Setup Python (FIXED VERSION)
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
 
-    - name: Install dependencies
-      run: pip install -r requirements.txt
+      # 3️⃣ Install dependencies
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Train model
-      run: python train.py
+      # 4️⃣ Train model
+      - name: Train model
+        run: python train.py
 
-    - name: Package model
-      run: tar -czvf model.tar.gz model.pkl inference.py
+      # 5️⃣ Package model
+      - name: Package model
+        run: tar -czvf model.tar.gz model.pkl inference.py
 
-    - name: Configure AWS
-      run: |
-        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws configure set region ${{ secrets.AWS_REGION }}
+      # 6️⃣ Configure AWS credentials
+      - name: Configure AWS credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set region ap-south-1
 
-    - name: Upload to S3
-      run: aws s3 cp model.tar.gz s3://cicd-student/model.tar.gz
+      # 7️⃣ Upload model to S3
+      - name: Upload to S3
+        run: aws s3 cp model.tar.gz s3://cicd-student/model.tar.gz
 
-    - name: Deploy to SageMaker
-      run: python deploy.py
+      # 8️⃣ Deploy to SageMaker
+      - name: Deploy to SageMaker
+        run: python deploy.py
