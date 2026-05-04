@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+model.pkl
+model.tar.gz
+student-pass.tar
