@@ -2,11 +2,12 @@ import boto3
 import sagemaker
 from sagemaker.sklearn.model import SKLearnModel
 
-# ✅ FIXED: use role ARN (not get_execution_role)
 role = "arn:aws:iam::479368492496:role/service-role/AmazonSageMakerAdminIAMExecutionRole"
 
 boto_session = boto3.Session(region_name="ap-south-1")
 session = sagemaker.Session(boto_session=boto_session)
+
+endpoint_name = "student-pass-endpoint"
 
 model = SKLearnModel(
     model_data="s3://cicd-student/model.tar.gz",
@@ -15,11 +16,30 @@ model = SKLearnModel(
     sagemaker_session=session
 )
 
-predictor = model.deploy(
-    instance_type="ml.t2.medium",
-    initial_instance_count=1,
-    endpoint_name="student-pass-endpoint",
-    update_endpoint=True
-)
+# 🔍 Check if endpoint exists
+sm_client = boto3.client("sagemaker", region_name="ap-south-1")
 
-print("🚀 Deployment started")
+try:
+    sm_client.describe_endpoint(EndpointName=endpoint_name)
+    endpoint_exists = True
+except:
+    endpoint_exists = False
+
+# 🚀 Deploy logic
+if endpoint_exists:
+    print("🔄 Updating existing endpoint...")
+    predictor = model.deploy(
+        instance_type="ml.t2.medium",
+        initial_instance_count=1,
+        endpoint_name=endpoint_name,
+        update_endpoint=True
+    )
+else:
+    print("🚀 Creating new endpoint...")
+    predictor = model.deploy(
+        instance_type="ml.t2.medium",
+        initial_instance_count=1,
+        endpoint_name=endpoint_name
+    )
+
+print("✅ Deployment complete")
