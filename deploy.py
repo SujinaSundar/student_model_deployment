@@ -12,6 +12,7 @@ endpoint_name = "student-pass-endpoint"
 model = SKLearnModel(
     model_data="s3://cicd-student/model.tar.gz",
     role=role,
+    entry_point="inference.py",  
     framework_version="1.2-1",
     sagemaker_session=session
 )
