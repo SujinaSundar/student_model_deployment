@@ -6,3 +6,4 @@ numpy
 sagemaker==2.257.2
 boto3
 scikit-learn
+pandas
