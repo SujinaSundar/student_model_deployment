@@ -3,3 +3,4 @@ __pycache__/
 model.pkl
 model.tar.gz
 student-pass.tar
+cleanup.py

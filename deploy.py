@@ -7,7 +7,9 @@ role = "arn:aws:iam::479368492496:role/service-role/AmazonSageMakerAdminIAMExecu
 boto_session = boto3.Session(region_name="ap-south-1")
 session = sagemaker.Session(boto_session=boto_session)
 
-endpoint_name = "student-pass-endpoint"
+import time
+
+endpoint_name = f"student-pass-endpoint-{int(time.time())}"
 
 model = SKLearnModel(
     model_data="s3://cicd-student/model.tar.gz",
